@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
+import java.util.*;
 
 /**
  * @ClassName: SearchServlet.java
@@ -49,8 +49,8 @@ public class SearchServlet extends HttpServlet {
      */
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        /*request.setCharacterEncoding("utf-8");
-        response.setContentType("text/html;charset=utf-8");*/
+        request.setCharacterEncoding("utf-8");
+        response.setContentType("text/html;charset=utf-8");
 
         String searchCondition = request.getParameter("search");
 
@@ -59,8 +59,19 @@ public class SearchServlet extends HttpServlet {
         List<Movie> movies;
         try {
             movies = service.search(searchCondition);
-            request.setAttribute("movies", movies);
-            request.setAttribute("pageNumber", (int)Math.ceil((double)movies.size()/12));
+            
+            // 对搜索结果去重
+            List<Movie> uniqueMovies = new ArrayList<>();
+            Set<String> nameSet = new HashSet<>();
+            for (Movie movie : movies) {
+                if (!nameSet.contains(movie.getName())) {
+                    uniqueMovies.add(movie);
+                    nameSet.add(movie.getName());
+                }
+            }
+            
+            request.setAttribute("movies", uniqueMovies);
+            request.setAttribute("pageNumber", (int)Math.ceil((double)uniqueMovies.size()/12));
             request.getRequestDispatcher("/searchResult.jsp").forward(request, response);
         } catch (SQLException e) {
             // TODO Auto-generated catch block

@@ -36,23 +36,33 @@ public class DetailServlet extends HttpServlet {
      */
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        /*request.setCharacterEncoding("utf-8");
-        response.setContentType("text/html;charset=utf-8");*/
+        request.setCharacterEncoding("utf-8");
+        response.setContentType("text/html;charset=utf-8");
 
         // 得到电影名
         String movieName = request.getParameter("movieName");
         System.out.println("movieName:" + movieName);
+        
+        if (movieName == null || movieName.trim().isEmpty()) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "电影名称不能为空");
+            return;
+        }
+        
         MovieService service = new MovieService();
         try {
             // 查找这部电影
             Movie movie = service.findMovieByName(movieName);
+            if (movie == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "未找到电影：" + movieName);
+                return;
+            }
             request.setAttribute("detail", movie);
 
         } catch (Exception e) {
             e.printStackTrace();
-
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "查询电影信息时发生错误");
+            return;
         }
-
 
         // 如果用户登录了，则将次电影记录到其历史记录中
         if (request.getSession().getAttribute("user") != null) {
@@ -62,6 +72,7 @@ public class DetailServlet extends HttpServlet {
                 hService.addRecord(user.getId(), movieName);
             } catch (SQLException e) {
                 e.printStackTrace();
+                System.out.println("添加历史记录失败：" + e.getMessage());
             }
         }
 
@@ -70,7 +81,6 @@ public class DetailServlet extends HttpServlet {
         try {
             cTimeService.updateRecord(movieName);
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             System.out.println("更新电影点击次数出错！！");
         }
@@ -80,21 +90,23 @@ public class DetailServlet extends HttpServlet {
             List<Movie> hotMovies = cTimeService.getHotMovies();
             request.setAttribute("hotMovies", hotMovies);
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
+            System.out.println("获取热门电影失败：" + e.getMessage());
         }
-
 
         // 查找评论
         CommentService commentService = new CommentService();
         try {
             List<Comment> comments = commentService.findCommentsByMovieName(movieName);
             request.setAttribute("comments", comments);
-
             request.setAttribute("commentsSize", (int) Math.ceil((double)comments.size() / 4));
             System.out.println("评论数量：" + comments.size());
         } catch (SQLException e) {
             e.printStackTrace();
+            System.out.println("获取评论失败：" + e.getMessage());
+            // 设置空的评论列表
+            request.setAttribute("comments", new java.util.ArrayList<Comment>());
+            request.setAttribute("commentsSize", 0);
         }
 
         request.getRequestDispatcher("/detail.jsp").forward(request, response);
@@ -112,7 +124,6 @@ public class DetailServlet extends HttpServlet {
      */
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
         doGet(request, response);
     }
 
