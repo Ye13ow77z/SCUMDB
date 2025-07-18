@@ -105,13 +105,13 @@ public class MovieDao {
     }
 
     /**
-     * @param condition 查找的条件
-     * @return
+     * @param condition 查找条件
+     * @return List<Movie>
      * @throws SQLException
      * @Description: 根据模糊电影名查找电影
      */
     public List<Movie> findMoviesByDimName(String condition) throws SQLException {
-        String sql = "SELECT * FROM allmovies WHERE `name` in (SELECT DISTINCT name  FROM `allmovies`  where name LIKE ?) GROUP BY `name`";
+        String sql = "SELECT * FROM allmovies WHERE name LIKE ? ORDER BY score DESC LIMIT 50";
         QueryRunner runner = new QueryRunner(DataSourceUtils.getDataSource());
         return runner.query(sql, new BeanListHandler<Movie>(Movie.class), "%"+condition+"%");
     }

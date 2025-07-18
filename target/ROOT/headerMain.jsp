@@ -47,13 +47,18 @@
                 </ul>
 
 
-                <form class="form-inline mt-2 mt-md-0 mr-3" action="${pageContext.request.contextPath}/search.do"
-                      method="get">
-                    <input class="form-control mr-sm-2" type="text" name="search" placeholder="电影名" value=""
-                           aria-label="Search">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
-                        <span class="iconfont iconsousuo"></span></button>
-                </form>
+                <div class="form-inline mt-2 mt-md-0 mr-3 position-relative">
+                    <form action="${pageContext.request.contextPath}/search.do" method="get" id="searchForm">
+                        <input class="form-control mr-sm-2" type="text" name="search" id="searchInput" placeholder="电影名" value=""
+                               aria-label="Search" autocomplete="off">
+                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
+                            <span class="iconfont iconsousuo"></span>
+                        </button>
+                    </form>
+                    <div id="searchSuggestions" class="position-absolute bg-dark border border-secondary rounded" 
+                         style="top: 100%; left: 0; right: 0; z-index: 1000; display: none; max-height: 300px; overflow-y: auto;">
+                    </div>
+                </div>
 
 
                 <ul class="navbar-nav mr-4">
@@ -106,3 +111,78 @@
 
     <!-- 结束 -->
 </div>
+
+<script>
+$(document).ready(function() {
+    var searchTimeout;
+    var $searchInput = $('#searchInput');
+    var $searchSuggestions = $('#searchSuggestions');
+    
+    // 输入时触发搜索建议
+    $searchInput.on('input', function() {
+        var query = $(this).val().trim();
+        
+        // 清除之前的定时器
+        clearTimeout(searchTimeout);
+        
+        if (query.length < 1) {
+            $searchSuggestions.hide();
+            return;
+        }
+        
+        // 延迟500ms执行搜索，避免频繁请求
+        searchTimeout = setTimeout(function() {
+            $.ajax({
+                url: '${pageContext.request.contextPath}/searchSuggestion.do',
+                method: 'POST',
+                data: { search: query },
+                dataType: 'json',
+                success: function(data) {
+                    if (data && data.length > 0) {
+                        var html = '';
+                        data.forEach(function(movie) {
+                            html += '<div class="suggestion-item p-2 border-bottom border-secondary" style="cursor: pointer;">';
+                            html += '<div class="d-flex align-items-center">';
+                            html += '<img src="' + movie.image + '" style="width: 40px; height: 60px; object-fit: cover;" class="mr-2">';
+                            html += '<div>';
+                            html += '<div class="text-white">' + movie.name + '</div>';
+                            html += '<small class="text-muted">' + movie.years + ' · ' + movie.score + '分</small>';
+                            html += '</div>';
+                            html += '</div>';
+                            html += '</div>';
+                        });
+                        $searchSuggestions.html(html).show();
+                    } else {
+                        $searchSuggestions.hide();
+                    }
+                },
+                error: function() {
+                    $searchSuggestions.hide();
+                }
+            });
+        }, 500);
+    });
+    
+    // 点击建议项
+    $searchSuggestions.on('click', '.suggestion-item', function() {
+        var movieName = $(this).find('.text-white').text();
+        $searchInput.val(movieName);
+        $searchSuggestions.hide();
+        $('#searchForm').submit();
+    });
+    
+    // 点击其他地方隐藏建议
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('.form-inline').length) {
+            $searchSuggestions.hide();
+        }
+    });
+    
+    // 按ESC键隐藏建议
+    $searchInput.on('keydown', function(e) {
+        if (e.keyCode === 27) {
+            $searchSuggestions.hide();
+        }
+    });
+});
+</script>

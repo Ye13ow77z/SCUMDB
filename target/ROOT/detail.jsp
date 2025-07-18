@@ -157,135 +157,112 @@
             </div>
         </div>
         <!-- 评论部分 开始 -->
-        <div class="row" style="background: white;">
-            <div class="row" style="width: 100%;">
-                <div class="col-md-12">
-                    <%
-                        User user = (User) request.getSession().getAttribute("user");
-                        if (user == null) {
-
-                    %>
-                    <a href="${pageContext.request.contextPath}/login.do" class="float-right text-muted">
-                        <span style="font-size: 1.2em;" data-toggle="modal" data-target=".bd-example-modal-lg">评论</span>
-                    </a>
-                    <%
-                    } else {
-
-
-                    %>
-                    <a href="#" class="float-right text-muted">
-                        <span style="font-size: 1.2em;" data-toggle="modal" data-target=".bd-example-modal-lg">评论</span>
-                    </a>
-                    <%
-                        }
-                    %>
+        <div class="comment-section">
+            <div class="comment-header">
+                <h3 class="comment-title">观众评论</h3>
+                <%
+                    User user = (User) request.getSession().getAttribute("user");
+                    if (user == null) {
+                %>
+                <a href="${pageContext.request.contextPath}/login.do" class="comment-btn">
+                    <i class="iconfont iconaixin"></i> 登录后评论
+                </a>
+                <%
+                } else {
+                %>
+                <a href="#" class="comment-btn" data-toggle="modal" data-target=".bd-example-modal-lg">
+                    <i class="iconfont iconaixin"></i> 写评论
+                </a>
+                <%
+                    }
+                %>
+            </div>
+            
+            <!-- 评论统计 -->
+            <div class="comment-stats">
+                <div class="comment-stat-item">
+                    <i class="comment-stat-icon iconfont iconaixin"></i>
+                    <span>共 ${comments.size()} 条评论</span>
+                </div>
+                <div class="comment-stat-item">
+                    <i class="comment-stat-icon iconfont iconai-eye"></i>
+                    <span>最新评论</span>
                 </div>
             </div>
-            <div class="row">
-                <div class="row comment" style="width: 100%;">
-                    <c:forEach var="comment" items="${comments}" varStatus="status">
-                        <c:choose>
-                            <c:when test="${status.count <= 4}">
-                                <div class="c-info ml-5 mr-5 mt-5">
-                                    <div class="row">
-                                        <!-- 头像图片 -->
-                                        <div class="col-md-3">
-                                            <img src="img/bg2.png"
-                                                 alt="140*140"
-                                                 class="rounded-circle mt-2" width="80px" height="80px">
-                                        </div>
-                                        <div class="col-md-8">
-                                            <h4>${comment.userName}</h4>
-                                            <span style="color: gray;">${comment.addTime}</span>
-                                        </div>
-                                    </div>
-                                    <hr>
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="hid des">
-                                                    ${comment.description}
-                                            </div>
-                                        </div>
+            
+            <!-- 评论列表 -->
+            <div class="comment-list">
+                <c:forEach var="comment" items="${comments}" varStatus="status">
+                    <c:choose>
+                        <c:when test="${status.count <= 4}">
+                            <div class="comment-item">
+                                <div class="comment-user-info">
+                                    <img src="img/bg2.png" alt="用户头像" class="comment-avatar">
+                                    <div class="comment-user-details">
+                                        <h4 class="comment-username">${comment.userName}</h4>
+                                        <p class="comment-time">${comment.addTime}</p>
                                     </div>
                                 </div>
-                            </c:when>
-                            <c:otherwise>
-                                <div class="c-info ml-5 mr-5 d-none mt-5">
-                                    <div class="row">
-                                        <!-- 头像图片 -->
-                                        <div class="col-md-3">
-                                            <img src="https://www.runoob.com/try/bootstrap/layoutit/v3/default3.jpg"
-                                                 alt="140*140"
-                                                 class="rounded-circle mt-2" width="80px" height="80px">
-                                        </div>
-                                        <div class="col-md-8">
-                                            <h4>${comment.userName}</h4>
-                                            <span style="color: gray;">${comment.addTime}</span>
-                                        </div>
-                                    </div>
-                                    <hr>
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="hid des">
-                                                    ${comment.description}
-                                            </div>
-                                        </div>
+                                <div class="comment-content">
+                                    ${comment.description}
+                                </div>
+                            </div>
+                        </c:when>
+                        <c:otherwise>
+                            <div class="comment-item d-none">
+                                <div class="comment-user-info">
+                                    <img src="img/bg2.png" alt="用户头像" class="comment-avatar">
+                                    <div class="comment-user-details">
+                                        <h4 class="comment-username">${comment.userName}</h4>
+                                        <p class="comment-time">${comment.addTime}</p>
                                     </div>
                                 </div>
-                            </c:otherwise>
-                        </c:choose>
-                    </c:forEach>
+                                <div class="comment-content">
+                                    ${comment.description}
+                                </div>
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
+                </c:forEach>
+            </div>
+            
+            <!-- 分页 -->
+            <c:if test="${commentsSize > 0}">
+                <div class="comment-pagination">
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center" id="controllPage">
+                            <li class="page-item">
+                                <a class="page-link" href="#" aria-label="Previous"
+                                   onclick="lastCommentPage();return false;">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            <c:forEach begin="1" end="${commentsSize}" var="i">
+                                <c:choose>
+                                    <c:when test="${i == 1}">
+                                        <li class="page-item active" onclick="changeCommentPage(${i})">
+                                            <a class="page-link" href="#">${i}</a>
+                                        </li>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <li class="page-item" onclick="changeCommentPage(${i})">
+                                            <a class="page-link" href="#">${i}</a>
+                                        </li>
+                                    </c:otherwise>
+                                </c:choose>
+                            </c:forEach>
+                            <li class="page-item">
+                                <a class="page-link" href="#" onclick="nextPageComment();return false;"
+                                   aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
-            </div>
-            <div class="row" style=" width: 100%; margin-top: 10px;">
-                <c:if test="${commentsSize > 0}">
-                    <div class="col-md-12" style="text-align: center;">
-                        <nav aria-label="Page navigation example">
-                            <ul class="pagination justify-content-center" id="controllPage">
-                                <li class="page-item">
-                                    <a class="page-link" href="#" aria-label="Previous"
-                                       onclick="lastCommentPage();return false;">
-                                        <span aria-hidden="true">&laquo;</span>
-                                    </a>
-                                </li>
-                                <%
-                                    for (int i = 0; i < (int) request.getAttribute("commentsSize"); i++) {
-
-
-                                %>
-                                <%
-                                    if (i == 0) {
-                                %>
-                                <li class="page-item active" onclick="changeCommentPage(<%=i+1%>)">
-                                    <a class="page-link" href="#"><%=i + 1%>
-                                    </a>
-                                </li>
-                                <%
-                                } else {
-                                %>
-                                <li class="page-item" onclick="changeCommentPage(<%=i+1%>)">
-                                    <a class="page-link" href="#"><%=i + 1%>
-                                    </a>
-                                </li>
-                                <%
-                                    }
-                                %>
-                                <%
-                                    }
-                                %>
-                                <li class="page-item">
-                                    <a class="page-link" href="#" onclick="nextPageComment();return false;"
-                                       aria-label="Next">
-                                        <span aria-hidden="true">&raquo;</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
-                </c:if>
-            </div>
-            <!-- 评论部分 结束 -->
+            </c:if>
         </div>
+        <!-- 评论部分 结束 -->
 
         <!-- 热门电影 开始 -->
         <div class="row bottom-menu">

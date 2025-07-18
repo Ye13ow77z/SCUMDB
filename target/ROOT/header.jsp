@@ -47,13 +47,18 @@
                 </ul>
 
 
-                <form class="form-inline mt-2 mt-md-0 mr-3" action="${pageContext.request.contextPath}/search.do"
-                      method="get">
-                    <input class="form-control mr-sm-2" type="text" name="search" placeholder="电影名" value=""
-                           aria-label="Search">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><span
-                            class="iconfont iconsousuo"></span></button>
-                </form>
+                <div class="form-inline mt-2 mt-md-0 mr-3 position-relative">
+                    <form action="${pageContext.request.contextPath}/search.do" method="get" id="searchForm">
+                        <input class="form-control mr-sm-2" type="text" name="search" id="searchInput" placeholder="电影名" value=""
+                               aria-label="Search" autocomplete="off">
+                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
+                            <span class="iconfont iconsousuo"></span>
+                        </button>
+                    </form>
+                    <div id="searchSuggestions" class="position-absolute bg-dark border border-secondary rounded" 
+                         style="top: 100%; left: 0; right: 0; z-index: 1000; display: none; max-height: 300px; overflow-y: auto;">
+                    </div>
+                </div>
 
 
                 <ul class="navbar-nav mr-4">
@@ -109,6 +114,26 @@
 
     <!-- 结束 -->
 </div>
+
+<style>
+#searchSuggestions {
+    background-color: #222 !important;
+    opacity: 1 !important;
+}
+.suggestion-item:hover {
+    background-color: #444 !important;
+}
+.form-inline {
+    display: flex !important;
+}
+#searchForm {
+    display: flex !important;
+}
+#searchInput {
+    display: block !important;
+    visibility: visible !important;
+}
+</style>
 
 <script>
     var url = decodeURI(window.location.search);

@@ -49,7 +49,7 @@ public class StoreDataUtil {
             try {
                 String sql;
                 if (i > 0) {
-                    sql = "SELECT * FROM allmovies where name in (SELECT name FROM allmovies WHERE type=?) GROUP BY name HAVING (COUNT(type) <= 2) ORDER BY RAND() LIMIT 5";
+                    sql = "SELECT MAX(id) as id, name, MAX(type) as type, MAX(years) as years, MAX(country) as country, MAX(director) as director, MAX(actor) as actor, MAX(des) as des, MAX(image) as image, MAX(url) as url, MAX(score) as score, MAX(scriptwriter) as scriptwriter, MAX(languages) as languages, MAX(length) as length FROM allmovies where name in (SELECT name FROM allmovies WHERE type=?) GROUP BY name HAVING (COUNT(type) <= 2) ORDER BY RAND() LIMIT 5";
                     lists = (List<Movie>) runner.query(sql, new BeanListHandler<Movie>(Movie.class), types[i]);
                 } else {
                     sql = "SELECT * FROM `allmovies` where years=? limit 0,10";

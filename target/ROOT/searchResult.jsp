@@ -90,13 +90,21 @@
     <jsp:include page="header.jsp"/>
     <div class="middle-show clearfix">
         <div class="row mt-4" style="opacity: 0.7">
+            <c:if test="${empty movies}">
+                <div class="col-md-12 text-center text-white">
+                    <h3>没有找到相关电影</h3>
+                    <p>请尝试其他关键词</p>
+                    <a href="${pageContext.request.contextPath}/main.do" class="btn btn-primary">返回首页</a>
+                </div>
+            </c:if>
+            <c:if test="${not empty movies}">
             <div class="row">
                 <div class="col-md-12">
                     <div class="card-deck text-white">
                         <c:forEach var="m" items="${movies}" varStatus="status">
                             <c:if test="${status.index < 6}">
                                 <div class="card bg-dark" style="max-width: 200px; max-height: 450px">
-                                    <a href="${pageContext.request.contextPath}//detail.do?movieName=${m.name}">
+                                    <a href="${pageContext.request.contextPath}/detail.do?movieName=${m.name}">
                                         <img src="${m.image }" class="card-img-top" alt="">
                                     </a>
                                     <div class="card-body">
@@ -209,6 +217,7 @@
                     </nav>
                 </div>
             </div>
+            </c:if>
         </div>
 
     </div>
