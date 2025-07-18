@@ -304,7 +304,7 @@
 
     <div class="middle-show">
         <div class="middle-cont">
-            <div class="middle-content">
+            <div class="middle-content" style="margin-top: 30px; ">
                 <div class="title">
                     <h2>
                         <a class="text-white" href="#">最新电影</a>
